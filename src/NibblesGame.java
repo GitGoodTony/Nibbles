@@ -2,6 +2,7 @@ import java.util.Arrays;
 
 public class NibblesGame {
 	private int[] appleCoordinates;
+	private int score;
 	private Snake player;
 	private Direction playerDirection, playerTempDirection;
 	
@@ -35,7 +36,11 @@ public class NibblesGame {
 		SnakeNode front = player.getFront();
 		if (Arrays.equals(appleCoordinates, front.getCoordinates())) {
 			player.extendSnake();
+			player.extendSnake();
+			player.extendSnake();
 			this.updateApple();
+			
+			score += 1;
 		}
 	}
 	
@@ -82,6 +87,9 @@ public class NibblesGame {
 		this.appleCoordinates = newCoords;
 	}
 	
+	public int getScore() {
+		return this.score;
+	}
 	private boolean validPoints(int[] coords) {
 		return coords[0] % 3 == 0 && coords[1] % 3 == 0;
 	}

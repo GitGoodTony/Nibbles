@@ -4,13 +4,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 public class GamePanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private NibblesGame game;
 	private Timer timer;
+	private int highScore;
 	
 	private final int BLOCK_WIDTH;
 	private final int SPEED;
@@ -18,6 +21,7 @@ public class GamePanel extends JPanel {
 	
 	public GamePanel(NibblesGame game, int width, int height) {
 		this.game = game;
+		this.highScore = 0;
 		this.BLOCK_WIDTH = height / 150;
 		this.SPEED = 30;
 		
@@ -44,8 +48,15 @@ public class GamePanel extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
+		if (game.getScore() > this.highScore) { this.highScore = game.getScore(); }
+		
 		if (!game.playerAlive()) {
 			timer.stop();
+			((JFrame) SwingUtilities.getWindowAncestor(this)).setTitle("FINAL SCORE: " + game.getScore() + " | HIGH SCORE: " + this.highScore + " | PRESS ANY KEY TO RESTART!");
+		}
+		
+		else {
+			((JFrame) SwingUtilities.getWindowAncestor(this)).setTitle("CURRENT SCORE: " + game.getScore() + " | HIGH SCORE: " + this.highScore);
 		}
 		
 		g.setColor(Color.BLACK);
