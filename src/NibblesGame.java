@@ -3,38 +3,45 @@ import java.util.Arrays;
 public class NibblesGame {
 	private int[] appleCoordinates;
 	private Snake player;
-	private Direction playerDirection;
+	private Direction playerDirection, playerTempDirection;
 	
 	private boolean isAlive;
 	
-	public NibblesGame() {
-		this.player = new Snake((int) (Math.random() * 30 + 10), (int) (Math.random() * 30 + 10));
+	public NibblesGame(int dist) {
+		this.player = new Snake((int) (Math.random() * 150 + 10), 100, dist);
 		this.appleCoordinates = new int[2];
-		this.appleCoordinates[0] = 10;
-		this.appleCoordinates[1] = 10;
+		this.appleCoordinates[0] = 30;
+		this.appleCoordinates[1] = 30;
 		
 		this.playerDirection = Direction.up;
+		this.playerTempDirection = this.playerDirection;
 		
 		this.isAlive = true;
 	}
 	
-	public int[] move() {
-		return this.player.moveSnake(playerDirection);
+	public void move() {
+		this.player.moveSnake(playerDirection);
 	}
 	
-	public void setDirection(Direction newDirection) {
-		this.playerDirection = newDirection;
+	public void setDirection() {
+		this.playerDirection = this.playerTempDirection;
+	}
+	
+	public void setTempDirection(Direction newDirection) {
+		this.playerTempDirection = newDirection;
+	}
+	
+	public void checkAppleCollision() {
+		SnakeNode front = player.getFront();
+		if (Arrays.equals(appleCoordinates, front.getCoordinates())) {
+			player.extendSnake();
+			this.updateApple();
+		}
 	}
 	
 	public void checkCollision(int x, int y) {
 		SnakeNode front = player.getFront();
-		System.out.println(Arrays.toString(appleCoordinates) + Arrays.toString(front.getCoordinates()));
-		if (Arrays.equals(appleCoordinates, front.getCoordinates())) {
-			player.extendSnake(x, y);
-			this.updateApple();
-		}
-		
-		if (front.getX() < 0 || front.getX() > 50 || front.getY() < 0 || front.getY() > 50) {
+		if (front.getX() < 0 || front.getX() > 147 || front.getY() < 0 || front.getY() > 141) {
 			this.isAlive = false;
 			return;
 		}
@@ -66,11 +73,17 @@ public class NibblesGame {
 	}
 	
 	public void updateApple() {
-		int[] newCoords = {(int) (Math.random() * 50), (int) (Math.random() * 50)};
-		while (!spotNotTaken(newCoords)) {
-			newCoords[0] = (int) (Math.random() * 50);
-			newCoords[1] = (int) (Math.random() * 50);
+		int[] newCoords = {(int) (Math.random() * 147), (int) (Math.random() * 141)};
+		while (!validPoints(newCoords) || !spotNotTaken(newCoords)) {
+			newCoords[0] = (int) (Math.random() * 147);
+			newCoords[1] = (int) (Math.random() * 141);
 		}
+
+		this.appleCoordinates = newCoords;
+	}
+	
+	private boolean validPoints(int[] coords) {
+		return coords[0] % 3 == 0 && coords[1] % 3 == 0;
 	}
 	
 	private boolean spotNotTaken(int[] coords) {

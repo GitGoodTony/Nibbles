@@ -19,7 +19,7 @@ public class GameFrame extends JFrame implements KeyListener {
 		this.pack();
 		this.setResizable(false);
 		
-		panel = new GamePanel(new NibblesGame(), SCREEN_HEIGHT, SCREEN_HEIGHT);
+		panel = new GamePanel(new NibblesGame(SCREEN_HEIGHT / 50), SCREEN_HEIGHT, SCREEN_HEIGHT);
 		this.add(panel);
 		panel.setLayout(null);
 		
@@ -27,13 +27,13 @@ public class GameFrame extends JFrame implements KeyListener {
 		this.revalidate();
 	}
 	
-	public void keyReleased(KeyEvent e) {
-		this.panel.changeDirection(e);
-	}
+	public void keyReleased(KeyEvent e) {}
 
 	@Override
 	public void keyTyped(KeyEvent e) {}
 
 	@Override
-	public void keyPressed(KeyEvent e) {}
+	public void keyPressed(KeyEvent e) {
+		this.panel.changeDirection(e);
+	}
 }

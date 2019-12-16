@@ -1,12 +1,16 @@
 public class Snake {
 	private SnakeNode front, back;
+	private final int NODE_DISTANCE;
 	
-	public Snake(int x, int y) {
+	public Snake(int x, int y, int distance) {
 		this.front = new SnakeNode(x, y);
-		this.back = front;
+		this.NODE_DISTANCE = 16;
+		this.back = new SnakeNode(x - distance, y);
+		
+		this.back.setNext(front);
 	}
 	
-	public int[] moveSnake(Direction direction) {
+	public void moveSnake(Direction direction) {
 		SnakeNode newFront = null;
 		
 		switch (direction) {
@@ -15,29 +19,10 @@ public class Snake {
 		    case up:    newFront = new SnakeNode(front.getX(), front.getY() - 1); break;
 		    case down:  newFront = new SnakeNode(front.getX(), front.getY() + 1); break;
 		}
-		
-		if (back == front) {
-			this.front.setNext(newFront);
-			this.front = newFront;
 			
-			return back.getCoordinates();
-		}
-		
-		else {
-			int[] backCoordinates = back.getCoordinates();
-			
-			SnakeNode temp = back;
-			while (temp.getNext() != null) {
-				temp.setCoordinates(temp.getNext().getCoordinates());
-				temp = temp.getNext();
-			}
-			
-			this.front.setNext(newFront);
-			this.front = newFront;
-			this.back = back.getNext();
-			
-			return backCoordinates;
-		}
+		this.front.setNext(newFront);
+		this.front = newFront;
+		this.back = back.getNext();
 	}
 	
 	public SnakeNode getBack() {
@@ -48,8 +33,12 @@ public class Snake {
 		return this.front;
 	}
 	
-	public void extendSnake(int x, int y) {
-		SnakeNode newBack = new SnakeNode(x, y);
+	public void extendSnake() {
+		int xDiff = (back.getX() - back.getNext().getX()) * NODE_DISTANCE;
+		int yDiff = (back.getY() - back.getNext().getY()) * NODE_DISTANCE;
+		System.out.println(xDiff + " " + yDiff);
+		SnakeNode newBack = new SnakeNode(back.getX() + xDiff, back.getY() + yDiff);
+
 		newBack.setNext(back);
 		
 		this.back = newBack;

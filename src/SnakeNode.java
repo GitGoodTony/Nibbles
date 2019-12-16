@@ -34,4 +34,12 @@ public class SnakeNode {
 	public void setCoordinates(int[] coordinates) {
 		this.coordinates = coordinates;
 	}
+	
+	public void setX(int x) {
+		this.coordinates[0] = x;
+	}
+	
+	public void setY(int y) {
+		this.coordinates[1] = y;
+	}
 }
