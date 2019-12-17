@@ -1,9 +1,13 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -15,17 +19,17 @@ public class GamePanel extends JPanel {
 	private Timer timer;
 	private int highScore;
 	
-	private final int BLOCK_WIDTH;
+	private final int BLOCK_WIDTH, SNAKE_WIDTH;
 	private final int SPEED;
-	private final Color HEAD_COLOR, BODY_COLOR;
+	private final Color BODY_COLOR;
 	
 	public GamePanel(NibblesGame game, int width, int height) {
 		this.game = game;
 		this.highScore = 0;
 		this.BLOCK_WIDTH = height / 150;
+		this.SNAKE_WIDTH = BLOCK_WIDTH * 3;
 		this.SPEED = 30;
 		
-		this.HEAD_COLOR = new Color((int) (Math.random() * 200), (int) (Math.random() * 200), (int) (Math.random() * 200));
 		this.BODY_COLOR = new Color((int) (Math.random() * 200), (int) (Math.random() * 200), (int) (Math.random() * 200));
 		
 		ActionListener action = new ActionListener() {
@@ -50,6 +54,7 @@ public class GamePanel extends JPanel {
 		
 		if (game.getScore() > this.highScore) { this.highScore = game.getScore(); }
 		
+		// Change screen title
 		if (!game.playerAlive()) {
 			timer.stop();
 			((JFrame) SwingUtilities.getWindowAncestor(this)).setTitle("FINAL SCORE: " + game.getScore() + " | HIGH SCORE: " + this.highScore + " | PRESS ANY KEY TO RESTART!");
@@ -59,34 +64,47 @@ public class GamePanel extends JPanel {
 			((JFrame) SwingUtilities.getWindowAncestor(this)).setTitle("CURRENT SCORE: " + game.getScore() + " | HIGH SCORE: " + this.highScore);
 		}
 		
-		g.setColor(Color.BLACK);
+		// Draw the grid
+		int[] appleCoords = this.game.getAppleCoordinates();
+		Color color = game.getPlayer().getFront().getX() == appleCoords[0] || game.getPlayer().getFront().getY() == appleCoords[1] ? Color.GREEN : Color.PINK;
 		for (int x = 0; x < 50; x++) {
-			for (int y = 0; y < 48; y++) {
-				g.drawRect(BLOCK_WIDTH * x * 3,  BLOCK_WIDTH * y * 3, BLOCK_WIDTH * 3, BLOCK_WIDTH * 3);
+			for (int y = 0; y < 50; y++) {
+				if (x == appleCoords[0] / 3 || y == appleCoords[1] / 3) { 
+					g.setColor(color); 
+					g.fillRect(x * SNAKE_WIDTH,  y * SNAKE_WIDTH, SNAKE_WIDTH, SNAKE_WIDTH);
+				}
+				else { 
+					g.setColor(Color.BLACK); 
+					g.drawRect(x * SNAKE_WIDTH, y * SNAKE_WIDTH, SNAKE_WIDTH, SNAKE_WIDTH);
+				}
 			}
 		}
 		
+		// Draw the snake's body
 		SnakeNode temp = game.getPlayer().getBack();
 		g.setColor(BODY_COLOR);
 		while (temp.getNext() != null) {
-			g.fillRect(temp.getX() * BLOCK_WIDTH, temp.getY() * BLOCK_WIDTH, BLOCK_WIDTH * 3, BLOCK_WIDTH * 3);
+			g.fillRect(temp.getX() * BLOCK_WIDTH, temp.getY() * BLOCK_WIDTH, SNAKE_WIDTH, SNAKE_WIDTH);
 			
 			temp = temp.getNext();
 		}
 		
-		g.setColor(HEAD_COLOR);
-		g.fillRect(game.getPlayer().getFront().getX() * BLOCK_WIDTH, game.getPlayer().getFront().getY() * BLOCK_WIDTH, BLOCK_WIDTH * 3, BLOCK_WIDTH * 3);
+		// Draw the snake's head
+		try {
+			g.drawImage(ImageIO.read(new File("" + game.getDirection() + ".png")).getScaledInstance(SNAKE_WIDTH, SNAKE_WIDTH, Image.SCALE_SMOOTH) ,game.getPlayer().getFront().getX() * BLOCK_WIDTH, game.getPlayer().getFront().getY() * BLOCK_WIDTH, this);
+		} catch (IOException e) {}
 		
-		int[] appleCoords = this.game.getAppleCoordinates();
+		// Draw the apple
 		g.setColor(Color.RED);
-		g.fillRect(appleCoords[0] * BLOCK_WIDTH, appleCoords[1] * BLOCK_WIDTH, BLOCK_WIDTH * 3, BLOCK_WIDTH * 3);
+		g.fillRect(appleCoords[0] * BLOCK_WIDTH, appleCoords[1] * BLOCK_WIDTH, SNAKE_WIDTH, SNAKE_WIDTH);
 		
 		this.repaint();
 	}
 	
 	public void changeDirection(KeyEvent e) {
 		if (!game.playerAlive()) {
-			this.game = new NibblesGame(this.BLOCK_WIDTH * 3);
+			// Create a new game
+			this.game = new NibblesGame(this.SNAKE_WIDTH);
 			ActionListener action = new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -102,6 +120,8 @@ public class GamePanel extends JPanel {
 			this.timer.setInitialDelay(0);
 			this.timer.restart();
 		}
+		
+		// Change snake direction
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			if (game.getDirection() != Direction.left) {
 				game.setTempDirection(Direction.right);

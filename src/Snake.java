@@ -13,6 +13,7 @@ public class Snake {
 	public void moveSnake(Direction direction) {
 		SnakeNode newFront = null;
 		
+		// Create the new front of the snake
 		switch (direction) {
 		    case left:  newFront = new SnakeNode(front.getX() - 1, front.getY()); break;
 		    case right: newFront = new SnakeNode(front.getX() + 1, front.getY()); break;
@@ -20,6 +21,7 @@ public class Snake {
 		    case down:  newFront = new SnakeNode(front.getX(), front.getY() + 1); break;
 		}
 			
+		// "Move" the snake
 		this.front.setNext(newFront);
 		this.front = newFront;
 		this.back = back.getNext();
@@ -34,6 +36,7 @@ public class Snake {
 	}
 	
 	public void extendSnake() {
+		// Make a node at the old end of the snake
 		int xDiff = (back.getX() - back.getNext().getX()) * NODE_DISTANCE;
 		int yDiff = (back.getY() - back.getNext().getY()) * NODE_DISTANCE;
 		System.out.println(xDiff + " " + yDiff);

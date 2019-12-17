@@ -26,6 +26,7 @@ public class NibblesGame {
 	
 	public void setDirection() {
 		this.playerDirection = this.playerTempDirection;
+		this.resetSnake();
 	}
 	
 	public void setTempDirection(Direction newDirection) {
@@ -46,11 +47,14 @@ public class NibblesGame {
 	
 	public void checkCollision(int x, int y) {
 		SnakeNode front = player.getFront();
-		if (front.getX() < 0 || front.getX() > 147 || front.getY() < 0 || front.getY() > 141) {
+		
+		// Check if snake is out of bounds
+		if (front.getX() < 0 || front.getX() > 147 || front.getY() < 0 || front.getY() > 147) {
 			this.isAlive = false;
 			return;
 		}
 		
+		// Check if snake has hit itself
 		SnakeNode temp = player.getBack();
 		while (temp.getNext() != null) {
 			if (Arrays.equals(temp.getCoordinates(), front.getCoordinates())) {
@@ -78,10 +82,11 @@ public class NibblesGame {
 	}
 	
 	public void updateApple() {
-		int[] newCoords = {(int) (Math.random() * 147), (int) (Math.random() * 141)};
+		// Create new apple coordinates
+		int[] newCoords = {(int) (Math.random() * 147), (int) (Math.random() * 147)};
 		while (!validPoints(newCoords) || !spotNotTaken(newCoords)) {
 			newCoords[0] = (int) (Math.random() * 147);
-			newCoords[1] = (int) (Math.random() * 141);
+			newCoords[1] = (int) (Math.random() * 147);
 		}
 
 		this.appleCoordinates = newCoords;
@@ -105,5 +110,27 @@ public class NibblesGame {
 		}
 		
 		return true;
+	}
+	
+	private void resetSnake() {
+		SnakeNode temp = this.player.getBack();
+		
+		if ((this.playerDirection == Direction.left || this.playerDirection == Direction.right) && this.player.getFront().getY() % 3 != 0) {
+			int yAdjust = this.player.getFront().getY() % 3 == 1 ? 2 : 1;
+			while (temp != null) {
+				temp.setY(temp.getY() + yAdjust);
+				
+				temp = temp.getNext();
+			}
+		}
+		
+		else if ((this.playerDirection == Direction.up || this.playerDirection == Direction.down) && this.player.getFront().getX() % 3 != 0){
+			int xAdjust = this.player.getFront().getX() % 3 == 1 ? 2 : 1;
+			while (temp != null) {
+				temp.setX(temp.getX() + xAdjust);
+				
+				temp = temp.getNext();
+			}
+		}
 	}
 }
