@@ -4,7 +4,7 @@ public class Snake {
 	
 	public Snake(int x, int y, int distance) {
 		this.front = new SnakeNode(x, y);
-		this.NODE_DISTANCE = 16;
+		this.NODE_DISTANCE = distance;
 		this.back = new SnakeNode(x - distance, y);
 		
 		this.back.setNext(front);
@@ -21,7 +21,7 @@ public class Snake {
 		    case down:  newFront = new SnakeNode(front.getX(), front.getY() + 1); break;
 		}
 			
-		// "Move" the snake
+		// "Move" the snake by extending the front and removing the back
 		this.front.setNext(newFront);
 		this.front = newFront;
 		this.back = back.getNext();
@@ -39,7 +39,6 @@ public class Snake {
 		// Make a node at the old end of the snake
 		int xDiff = (back.getX() - back.getNext().getX()) * NODE_DISTANCE;
 		int yDiff = (back.getY() - back.getNext().getY()) * NODE_DISTANCE;
-		System.out.println(xDiff + " " + yDiff);
 		SnakeNode newBack = new SnakeNode(back.getX() + xDiff, back.getY() + yDiff);
 
 		newBack.setNext(back);

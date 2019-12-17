@@ -6,6 +6,8 @@ public class NibblesGame {
 	private Snake player;
 	private Direction playerDirection, playerTempDirection;
 	
+	private final int SPEED;
+	
 	private boolean isAlive;
 	
 	public NibblesGame(int dist) {
@@ -13,6 +15,7 @@ public class NibblesGame {
 		this.appleCoordinates = new int[2];
 		this.appleCoordinates[0] = 30;
 		this.appleCoordinates[1] = 30;
+		this.SPEED = 30;
 		
 		this.playerDirection = Direction.up;
 		this.playerTempDirection = this.playerDirection;
@@ -20,13 +23,25 @@ public class NibblesGame {
 		this.isAlive = true;
 	}
 	
+	
+	// Getter methods
+	public int getSpeed()              { return this.SPEED; }
+	public boolean playerAlive()       { return this.isAlive; }
+	public Direction getDirection()    { return this.playerDirection; }
+	public Snake getPlayer()           { return this.player; }
+	public int[] getAppleCoordinates() { return this.appleCoordinates; }
+	public int getScore()              { return this.score; }
+	// END OF GETTER METHODS
+	
 	public void move() {
 		this.player.moveSnake(playerDirection);
 	}
 	
 	public void setDirection() {
+		// Finalize the snake's new direction
+		Direction prevDirection = this.playerDirection;
 		this.playerDirection = this.playerTempDirection;
-		this.resetSnake();
+		this.resetSnake(prevDirection);
 	}
 	
 	public void setTempDirection(Direction newDirection) {
@@ -34,14 +49,26 @@ public class NibblesGame {
 	}
 	
 	public void checkAppleCollision() {
-		SnakeNode front = player.getFront();
-		if (Arrays.equals(appleCoordinates, front.getCoordinates())) {
-			player.extendSnake();
-			player.extendSnake();
-			player.extendSnake();
-			this.updateApple();
-			
-			score += 1;
+		for (int xIncrease = 0; xIncrease <= 2; xIncrease++) {
+			for (int yIncrease = 0; yIncrease <= 2; yIncrease++) {
+				SnakeNode temp = this.player.getBack();
+				
+				// Check the entire red box representing the apple to each of the snake's body nodes
+				while (temp != null) {
+					int[] tempCoordinates = {appleCoordinates[0] + xIncrease, appleCoordinates[1] + yIncrease};
+					
+					if (Arrays.equals(tempCoordinates, temp.getCoordinates())) {
+						player.extendSnake();
+						player.extendSnake();
+						player.extendSnake();
+						this.updateApple();
+						
+						score += 1;
+					}
+					
+					temp = temp.getNext();
+				}
+			}
 		}
 	}
 	
@@ -65,22 +92,6 @@ public class NibblesGame {
 		}
 	}
 	
-	public boolean playerAlive() {
-		return this.isAlive;
-	}
-	
-	public Direction getDirection() {
-		return this.playerDirection;
-	}
-	
-	public Snake getPlayer() {
-		return this.player;
-	}
-	
-	public int[] getAppleCoordinates() {
-		return this.appleCoordinates;
-	}
-	
 	public void updateApple() {
 		// Create new apple coordinates
 		int[] newCoords = {(int) (Math.random() * 147), (int) (Math.random() * 147)};
@@ -91,15 +102,14 @@ public class NibblesGame {
 
 		this.appleCoordinates = newCoords;
 	}
-	
-	public int getScore() {
-		return this.score;
-	}
+
 	private boolean validPoints(int[] coords) {
+		// Ensure coordinates are in the grid
 		return coords[0] % 3 == 0 && coords[1] % 3 == 0;
 	}
 	
 	private boolean spotNotTaken(int[] coords) {
+		// Ensure the coordinates do not overlap the player
 		SnakeNode temp = player.getBack();
 		while (temp != null) {
 			if (Arrays.equals(temp.getCoordinates(), coords)) {
@@ -112,24 +122,45 @@ public class NibblesGame {
 		return true;
 	}
 	
-	private void resetSnake() {
+	private void resetSnake(Direction prevDirection) {
 		SnakeNode temp = this.player.getBack();
 		
-		if ((this.playerDirection == Direction.left || this.playerDirection == Direction.right) && this.player.getFront().getY() % 3 != 0) {
-			int yAdjust = this.player.getFront().getY() % 3 == 1 ? 2 : 1;
-			while (temp != null) {
-				temp.setY(temp.getY() + yAdjust);
-				
-				temp = temp.getNext();
+		// If the snake is not in between the lines, set it back to the lines
+		if (this.playerDirection == Direction.left || this.playerDirection == Direction.right) {
+			if (prevDirection == Direction.up) {
+				while (temp != null) {
+					if (temp.getY() % 3 != 0) {
+						temp.setY(temp.getY() + (temp.getY() % 3 == 1 ? -1 : -2));
+					}
+					temp = temp.getNext();
+				}
+			}
+			else {
+				while (temp != null) {
+					if (temp.getY() % 3 != 0) {
+						temp.setY(temp.getY() + (temp.getY() % 3 == 1 ? 2 : 1));
+					}
+					temp = temp.getNext();
+				}
 			}
 		}
 		
-		else if ((this.playerDirection == Direction.up || this.playerDirection == Direction.down) && this.player.getFront().getX() % 3 != 0){
-			int xAdjust = this.player.getFront().getX() % 3 == 1 ? 2 : 1;
-			while (temp != null) {
-				temp.setX(temp.getX() + xAdjust);
-				
-				temp = temp.getNext();
+		else if (this.playerDirection == Direction.up || this.playerDirection == Direction.down) {
+			if (prevDirection == Direction.left) {
+				while (temp != null) {
+					if (temp.getX() % 3 != 0) {
+						temp.setX(temp.getX() + (temp.getX() % 3 == 1 ? -1 : -2));
+					}
+					temp = temp.getNext();
+				}
+			}
+			else {
+				while (temp != null) {
+					if (temp.getX() % 3 != 0) {
+						temp.setX(temp.getX() + (temp.getX() % 3 == 1 ? 2 : 1));
+					}
+					temp = temp.getNext();
+				}
 			}
 		}
 	}

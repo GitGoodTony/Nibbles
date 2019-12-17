@@ -20,21 +20,23 @@ public class GamePanel extends JPanel {
 	private int highScore;
 	
 	private final int BLOCK_WIDTH, SNAKE_WIDTH;
-	private final int SPEED;
 	private final Color BODY_COLOR;
 	
 	public GamePanel(NibblesGame game, int width, int height) {
 		this.game = game;
 		this.highScore = 0;
+		
+	    // a 3x3 square of BLOCK_WIDTH x BLOCK_WIDTH squares create a 
+		// square the size of SNAKE_WIDTH x SNAKE_WIDTH
 		this.BLOCK_WIDTH = height / 150;
 		this.SNAKE_WIDTH = BLOCK_WIDTH * 3;
-		this.SPEED = 30;
 		
 		this.BODY_COLOR = new Color((int) (Math.random() * 200), (int) (Math.random() * 200), (int) (Math.random() * 200));
 		
 		ActionListener action = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				// Game loop: Turn the snake -> Move the snake -> Check for apple collision -> Check for death
 				game.setDirection();
 				game.move();
 				game.checkAppleCollision();
@@ -42,7 +44,8 @@ public class GamePanel extends JPanel {
 			}
 		};
 		
-		this.timer = new Timer(1000 / SPEED, action);
+		// Create a timer to check the game state
+		this.timer = new Timer(1000 / this.game.getSpeed(), action);
 		this.timer.setRepeats(true);
 		this.timer.setInitialDelay(0);
 		this.timer.start();
@@ -52,6 +55,7 @@ public class GamePanel extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
+		// Update the high score
 		if (game.getScore() > this.highScore) { this.highScore = game.getScore(); }
 		
 		// Change screen title
@@ -69,10 +73,13 @@ public class GamePanel extends JPanel {
 		Color color = game.getPlayer().getFront().getX() == appleCoords[0] || game.getPlayer().getFront().getY() == appleCoords[1] ? Color.GREEN : Color.PINK;
 		for (int x = 0; x < 50; x++) {
 			for (int y = 0; y < 50; y++) {
+				// For the cross-hairs grid boxes
 				if (x == appleCoords[0] / 3 || y == appleCoords[1] / 3) { 
 					g.setColor(color); 
 					g.fillRect(x * SNAKE_WIDTH,  y * SNAKE_WIDTH, SNAKE_WIDTH, SNAKE_WIDTH);
 				}
+				
+				// For the rest of the unclaimed grid boxes
 				else { 
 					g.setColor(Color.BLACK); 
 					g.drawRect(x * SNAKE_WIDTH, y * SNAKE_WIDTH, SNAKE_WIDTH, SNAKE_WIDTH);
@@ -115,13 +122,13 @@ public class GamePanel extends JPanel {
 				}
 			};
 			
-			this.timer = new Timer(1000 / SPEED, action);
+			this.timer = new Timer(1000 / this.game.getSpeed(), action);
 			this.timer.setRepeats(true);
 			this.timer.setInitialDelay(0);
 			this.timer.restart();
 		}
 		
-		// Change snake direction
+		// Change snake direction but ensure that the player is not going the opposite direction (suicide)
 		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			if (game.getDirection() != Direction.left) {
 				game.setTempDirection(Direction.right);

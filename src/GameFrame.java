@@ -13,7 +13,8 @@ public class GameFrame extends JFrame implements KeyListener {
 	public GameFrame() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		int SCREEN_HEIGHT = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 2;
+		// Window height is a multiple of 50 with max height and width of the 4/5ths the screen height
+		int SCREEN_HEIGHT = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight() / 5 * 4;
 		while (SCREEN_HEIGHT % 50 != 0) { SCREEN_HEIGHT--; }
 		
 		this.setPreferredSize(new Dimension(SCREEN_HEIGHT, SCREEN_HEIGHT));
